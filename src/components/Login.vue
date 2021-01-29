@@ -7,8 +7,8 @@
           <img src="../assets/头像.jpg" alt="" />
         </div>
         <!-- 登录表单区域 -->
-        <el-form label-width="0px" class="login_form" :model="loginForm" :rules="loginFormRules">
-          <el-form-item prop="username" >
+        <el-form label-width="0px" class="login_form" :model="loginForm" :rules="loginFormRules" ref="LoginFormRef">
+          <el-form-item prop="username">
             <el-input prefix-icon="iconfont icon-user" v-model="loginForm.username"></el-input>
           </el-form-item>
           <el-form-item prop="password">
@@ -16,8 +16,8 @@
           </el-form-item>
           <!-- 按钮区域 -->
           <el-form-item class="btns">
-            <el-button type="primary">登录</el-button>
-            <el-button type="info">重置</el-button>
+            <el-button type="primary" @click="login">登录</el-button>
+            <el-button type="info" @click="resetForm">重置</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -32,7 +32,7 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: '12356'
+        password: '123456'
       }, //表单验证规则
       loginFormRules: {
         username: [
@@ -57,7 +57,27 @@ export default {
     }
   },
   methods: {
-    loginFormRef() {}
+    //添加表单重置方法
+    //添加表单重置方法
+    resetForm() {
+      //this=>当前组件对象，其中的属性$refs包含了设置的表单ref
+      console.log(this)
+      this.$refs.LoginFormRef.resetFields()
+    },
+    login() {
+      this.$refs.LoginFormRef.validate(async (valid) => {
+        console.log(valid) //
+        if (!valid) return
+        //解构赋值   给data取一个新的名字
+        const { data: res } = await this.$http.post('login', this.loginForm)
+        if (res.meta.status !== 200) return this.$message.error('登录失败')
+        this.$message.success('登录成功')
+        // 储存token
+        window.sessionStorage.setItem('token', res.data.token)
+
+        this.$router.push('/home')
+      })
+    }
   }
 }
 </script>
