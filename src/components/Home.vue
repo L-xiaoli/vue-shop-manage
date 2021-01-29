@@ -15,7 +15,7 @@
         <el-aside :width="isCollpase ? '64px' : '200px'">
           <div @click="toggleCollapse" class="toggle-button ">|||</div>
           <!-- 侧边栏菜单区域 -->
-          <el-menu background-color="#333744" text-color="#fff" active-text-color="#409Eff" unique-opened :collapse="isCollpase" :collapse-transition="false">
+          <el-menu background-color="#333744" text-color="#fff" active-text-color="#409Eff" unique-opened :collapse="isCollpase" :collapse-transition="false" router :default-active="activePath">
             <!-- 一级菜单 -->
             <!-- 需要指定唯一的 index 属性，只接受字符串 -->
             <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
@@ -25,10 +25,11 @@
                 <span>{{ item.authName }}</span>
               </template>
               <!-- 二级子菜单 -->
-              <el-menu-item :index="subItem.id + ''" v-for="subItem in item.children" :key="subItem.id">
+              <el-menu-item :index="'/' + subItem.path" v-for="subItem in item.children" :key="subItem.id" @click="saveNavState('/' + subItem.path)">
                 <!-- 二级菜单模板 -->
                 <template slot="title">
                   <i :class="iconsObj[item.id]"></i>
+                  <span>{{ subItem.authName }}</span>
                 </template>
               </el-menu-item>
             </el-submenu>
@@ -59,12 +60,15 @@ export default {
         145: 'iconfont  icon-baobiao'
       },
       //是否折叠
-      isCollpase: false
+      isCollpase: false,
+      // 被激活的链接地址
+      activePath: ''
     }
   },
   created() {
     // 在 created 阶段请求左侧菜单数据
     this.getMenuList()
+    this.activePath = window.sessionStorage.getItem('activePath')
   },
   methods: {
     logout() {
@@ -81,6 +85,11 @@ export default {
     toggleCollapse() {
       //点击切换
       this.isCollpase = !this.isCollpase
+    },
+    // 保存链接的激活状态
+    saveNavState(activePath) {
+      window.sessionStorage.setItem('activePath', activePath)
+      this.activePath = activePath
     }
   }
 }
