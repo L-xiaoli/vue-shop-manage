@@ -1,18 +1,85 @@
 <template>
   <div>
     <h3>用户列表组件</h3>
+    <!-- 面包屑导航 -->
+    <el-breadcrumb separator="/">
+      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
+    </el-breadcrumb>
+    <!-- 卡片视图区域 -->
+    <el-card>
+      <!-- 搜索与添加区域 -->
+      <el-row :gutter="20">
+        <el-col :span="7">
+          <el-input placeholder="请输入内容">
+            <el-button slot="append" icon="el-icon-search"></el-button>
+          </el-input>
+        </el-col>
+        <el-col :span="4">
+          <el-button type="primary">添加用户</el-button>
+        </el-col>
+      </el-row>
+      <!-- 用户列表(表格)区域 -->
+      <el-table :data="userList" border stripe>
+        <el-table-column type="index"></el-table-column>
+        <el-table-column label="姓名" prop="username"></el-table-column>
+        <el-table-column label="邮箱" prop="email"></el-table-column>
+        <el-table-column label="电话" prop="mobile"></el-table-column>
+        <el-table-column label="角色" prop="role_name"></el-table-column>
+        <el-table-column label="状态">
+          <template slot-scope="scope">
+            <el-switch v-model="scope.row.mg_state"></el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="180px">
+          <template slot-scope="scope">
+            <!-- 修改 -->
+            <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
+            <!-- 删除 -->
+            <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <!-- 分配角色 -->
+            <el-tooltip class="item" effect="dark" content="分配角色" placement="top" :enterable="false">
+              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
   </div>
 </template>
 
 <script>
 export default {
-  name: '',
-
   data() {
-    return {}
+    return {
+      //获取查询用户信息的参数
+      queryInfo: {
+        query: '',
+        pagenum: 1,
+        pagesize: 2
+      },
+      // 保存请求回来的用户列表数据
+      userList: [],
+      total: 0
+    }
   },
-
-  methods: {}
+  created() {
+    this.getUserList()
+  },
+  methods: {
+    async getUserList() {
+      //发送请求获取用户列表数据
+      const { data: res } = await this.$http.get('users', {
+        params: this.queryInfo
+      })
+      //如果返回状态为异常状态则报错并返回
+      if (res.meta.status !== 200) return this.$message.error('获取用户列表失败')
+      //如果返回状态正常，将请求的数据保存在data中
+      this.userList = res.data.users
+      this.total = res.data.total
+    }
+  }
 }
 </script>
 
