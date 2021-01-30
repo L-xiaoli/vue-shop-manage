@@ -99,6 +99,15 @@ export default {
       this.queryInfo.pagenum = current
       //重新按照pagenum发送请求，请求最新的数据
       this.getUserList()
+    },
+    async changeUserState(userinfo) {
+      // console.log(userinfo)
+      const { data: res } = await this.$http.put(`users/${userinfo.id}/state/${userinfo.mg_state}`)
+      if (res.meta.status !== 200) {
+        userinfo.mg_state = !userinfo.mg_state
+        return this.$message.error('更新用户状态失败！')
+      }
+      return this.$message.success('更新用户状态成功！')
     }
   }
 }
