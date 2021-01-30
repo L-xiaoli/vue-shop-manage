@@ -35,7 +35,7 @@
         <el-table-column label="操作" width="180px">
           <template slot-scope="scope">
             <!-- 修改 -->
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)" @close="editDialogClosed"></el-button>
             <!-- 删除 -->
             <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
             <!-- 分配角色 -->
@@ -92,7 +92,7 @@
       </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editDialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="editUser">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -232,7 +232,7 @@ export default {
       }
       return this.$message.success('更新用户状态成功！')
     },
-    //监听天际通用户对话框关闭事件
+    //监听添加用户对话框关闭事件
     addDialogClosed() {
       this.$refs.addFormRef.resetFields()
     },
@@ -250,13 +250,32 @@ export default {
         //刷新用户列表
         this.getUserList()
       })
-    }, // 修改用户
+    }, // 展示修改用户的数据
     async showEditDialog(id) {
-      console.log(id);
       const { data: res } = await this.$http.get('users/' + id)
       if (res.meta.status !== 200) return this.$message.error('查询用户信息失败')
       this.editForm = res.data
       this.editDialogVisible = true
+    },
+    //监听修改用户对话框的关闭事件
+    editDialogClosed() {
+      this.$refs.editFormRef.resetFields()
+    },
+    editUser() {
+      //用户点击修改表单中的确定按钮之后，验证表单数据
+      this.$refs.editFormRef.validate(async (valid) => {
+        if (!valid) return this.$message.error('请填写完整用户信息')
+        //发送请求完成修改用户的操作
+        const { data: res } = await this.$http.put('users/' + this.editForm.id, this.editForm)
+        //判断如果修改失败，就做提示
+        if (res.meta.status !== 200) return this.$message.error('修改用户失败')
+        //修改成功的提示
+        this.$message.success('修改用户成功')
+        //关闭对话框
+        this.editDialogVisible = false
+        //重新请求最新的数据
+        this.getUserList()
+      })
     }
   }
 }
