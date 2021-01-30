@@ -51,11 +51,19 @@ if there's nested data, rowKey is required.
           <template>
             <el-button size="mini" type="primary" icon="el-icon-edit">编辑</el-button>
             <el-button size="mini" type="danger" icon="el-icon-delete">删除</el-button>
-            <el-button size="mini" type="warning" icon="el-icon-setting">分配权限</el-button>
+            <el-button size="mini" type="warning" icon="el-icon-setting" @click="showSetRightDialog">分配权限</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
+    <!-- 分配权限对话框 -->
+    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="50%">
+      <span>这是一段信息</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRightDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setRightDialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -64,7 +72,11 @@ export default {
   name: '',
   data() {
     return {
-      roleList: []
+      roleList: [],
+      //分配权限对话框
+      setRightDialogVisible: false,
+      // 所有权限的数据。
+      rightslist: []
     }
   },
   created() {
@@ -77,7 +89,7 @@ export default {
       if (res.meta.status !== 200) return this.$message.error('获取角色列表失败')
       // //如果返回状态正常，将请求的数据保存在data中
       this.roleList = res.data
-      console.log(res.data)
+      // console.log(res.data)
       //   this.roleList = res.data
     },
     //g根据id删除对应ID
@@ -99,6 +111,18 @@ export default {
       //属性列表
       //   this.getRoleList()
       role.children = res.data
+    },
+    //展示分配权限的对话框
+    async showSetRightDialog() {
+      //获取所有权限列表
+      const { data: res } = await this.$http.get('rights/tree')
+      if (res.meta.status != 200) {
+        return this.$message.error('获取权限数据失败！')
+      }
+      //把获取到的数据保存在rightslist中
+      this.rightslist = res.data
+      this.setRightDialogVisible = true
+      console.log(this.rightslist)
     }
   }
 }
