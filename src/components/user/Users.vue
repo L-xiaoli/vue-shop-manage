@@ -37,7 +37,7 @@
             <!-- 修改 -->
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)" @close="editDialogClosed"></el-button>
             <!-- 删除 -->
-            <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)"></el-button>
             <!-- 分配角色 -->
             <el-tooltip class="item" effect="dark" content="分配角色" placement="top" :enterable="false">
               <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
@@ -261,6 +261,7 @@ export default {
     editDialogClosed() {
       this.$refs.editFormRef.resetFields()
     },
+    //修改用户
     editUser() {
       //用户点击修改表单中的确定按钮之后，验证表单数据
       this.$refs.editFormRef.validate(async (valid) => {
@@ -276,6 +277,33 @@ export default {
         //重新请求最新的数据
         this.getUserList()
       })
+    },
+    //根据id删除用户
+    async removeUserById(id) {
+      //弹出确定取消框，是否删除用户
+      const confirmResult = await this.$confirm('请问是否要永久删除该用户', '删除提示', {
+        confirmButtonText: '确认删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch((err) => err)
+      console.log(confirmResult) //删除：confirm   取消：canel
+      if (confirmResult !== 'confirm') {
+        //(confirm)取消删除
+        return this.$message.error('取消删除操作')
+      }
+      //确认删除：进行删除操作
+      const { data: res } = await this.$http.delete('users/' + id)
+      console.log(res)
+      if (res.meta.status !== 200) {
+        this.$message.error('删除用户失败')
+      }
+      this.$message.success('删除用户成功')
+      //TODO:  解决BUG:最后页码的最后一页，只剩一条数据时，点击删除后：页码会-1，但是对应的用户信息 还是停留在上一页为空的状态，并且删除后页码-1，也必须在页码总数大于1的情况，不然就为0页了，最少也是一页
+      if (document.querySelectorAll('.el-card tbody tr').length === 1) {
+        this.queryInfo.pagenum = this.queryInfo.pagenum > 1 ? this.queryInfo.pagenum - 1 : 1
+      }
+      //重新请求最新的数据
+      this.getUserList()
     }
   }
 }
