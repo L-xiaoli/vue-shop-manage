@@ -29,8 +29,15 @@ const router = new VueRouter({
 //   routes
 // })
 //挂载路由导航守卫  to：去哪里，form ：从哪里来，next放行函数
-//挂载路由导航守卫  to：去哪里，form ：从哪里来，next放行函数
 router.beforeEach((to, from, next) => {
+  const hrefStr = to.path
+  // console.log(hrefStr)
+  if (hrefStr === '/welcome') {
+    // hrefStr = ''
+    window.sessionStorage.setItem('activePath', '')
+  } else {
+    window.sessionStorage.setItem('activePath', hrefStr)
+  }
   if (to.path === '/login') return next()
   const tokenStr = window.sessionStorage.getItem('token')
   if (!tokenStr) return next('/login')

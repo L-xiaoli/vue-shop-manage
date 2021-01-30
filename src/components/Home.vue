@@ -24,8 +24,8 @@
                 <i :class="iconsObj[item.id]"></i>
                 <span>{{ item.authName }}</span>
               </template>
-              <!-- 二级子菜单 -->
-              <el-menu-item :index="'/' + subItem.path" v-for="subItem in item.children" :key="subItem.id" @click="saveNavState('/' + subItem.path)">
+              <!-- 二级子菜单   @click="saveNavState('/' + subItem.path)"-->
+              <el-menu-item :index="'/' + subItem.path" v-for="subItem in item.children" :key="subItem.id">
                 <!-- 二级菜单模板 -->
                 <template slot="title">
                   <i :class="iconsObj[item.id]"></i>
@@ -85,11 +85,11 @@ export default {
     toggleCollapse() {
       //点击切换
       this.isCollpase = !this.isCollpase
-    },
-    // 保存链接的激活状态
-    saveNavState(activePath) {
-      window.sessionStorage.setItem('activePath', activePath)
-      this.activePath = activePath
+    }
+  },
+  watch: {
+    $route(to, from) {
+      this.activePath = window.sessionStorage.getItem('activePath')
     }
   }
 }
