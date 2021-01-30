@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>用户列表组件</h3>
+    <h3>权限列表组件</h3>
     <!-- 面包屑导航区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
