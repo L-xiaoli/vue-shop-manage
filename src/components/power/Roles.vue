@@ -59,10 +59,10 @@ if there's nested data, rowKey is required.
     <!-- 分配权限对话框 -->
     <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="50%" @close="setRightDialogClosed">
       <!-- 树形控件 -->
-      <el-tree :data="rightslist" :props="treeProps" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys"></el-tree>
+      <el-tree :data="rightslist" :props="treeProps" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys" ref="treeRef"></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="setRightDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="setRightDialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="alloRights">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -86,7 +86,9 @@ export default {
         children: 'children'
       },
       // 默认选择的节点id值
-      defKeys: []
+      defKeys: [],
+      //保存正在操作的角色id
+      roleId: ''
     }
   },
   created() {
@@ -124,6 +126,8 @@ export default {
     },
     //展示分配权限的对话框
     async showSetRightDialog(role) {
+      //将role.id保存起来以供保存权限时使用
+      this.roleId = role.id
       //获取所有权限列表
       const { data: res } = await this.$http.get('rights/tree')
       if (res.meta.status != 200) {
@@ -144,8 +148,27 @@ export default {
       //递归调用，循环
       node.children.forEach((item) => this.getLeafKeys(item, arr))
     },
+
     setRightDialogClosed() {
+      //当用户关闭树形权限对话框的时候，清除掉所有选中状态
       this.defKeys = []
+    },
+    async alloRights() {
+      const keys = [...this.$refs.treeRef.getCheckedKeys(), ...this.$refs.treeRef.getHalfCheckedKeys()]
+      //将数组转换为 , 拼接的字符串
+      const idStr = keys.join(',')
+      console.log(idStr)
+      //发送请求完成更新
+      //发送请求完成更新
+      const { data: res } = await this.$http.post(`roles/${this.roleId}/rights`, {
+        rids: idStr
+      })
+      if (res.meta.status !== 200) return this.$message.error('分配权限失败')
+
+      this.$message.success('分配权限成功')
+      this.getRoleList()
+      //关闭对话框
+      this.setRightDialogVisible = false
     }
   }
 }
