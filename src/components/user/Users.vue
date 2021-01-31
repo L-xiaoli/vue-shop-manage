@@ -100,11 +100,16 @@
       <div>
         <p>当前的用户:{{ userInfo.username }}</p>
         <p>当前的角色:{{ userInfo.role_name }}</p>
-        <p>分配新角色:</p>
+        <p>
+          分配新角色：
+          <el-select v-model="selectedRoleId" placeholder="请选择">
+            <el-option v-for="item in rolesList" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
+          </el-select>
+        </p>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="setRoleDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="setRoleDialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="savaRoleInfo">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -144,6 +149,7 @@ export default {
       addDialogVisible: false,
       editDialogVisible: false,
       setRoleDialogVisible: false,
+
       // 查询到的用户信息对象
       editForm: {
         username: '',
@@ -158,7 +164,8 @@ export default {
         mobile: ''
       },
       userInfo: '',
-      roleList: '',
+      rolesList: '',
+      selectedRoleId: '',
       // 添加表单的验证规则对象
       addFormRules: {
         username: [
@@ -211,6 +218,7 @@ export default {
     this.getUserList()
   },
   methods: {
+    //获取用户列表数据
     async getUserList() {
       //发送请求获取用户列表数据
       const { data: res } = await this.$http.get('users', {
@@ -238,6 +246,7 @@ export default {
       //重新按照pagenum发送请求，请求最新的数据
       this.getUserList()
     },
+    //更新用户状态
     async changeUserState(userinfo) {
       // console.log(userinfo)
       const { data: res } = await this.$http.put(`users/${userinfo.id}/state/${userinfo.mg_state}`)
@@ -265,7 +274,8 @@ export default {
         //刷新用户列表
         this.getUserList()
       })
-    }, // 展示修改用户的数据
+    },
+    // 展示修改用户的数据
     async showEditDialog(id) {
       const { data: res } = await this.$http.get('users/' + id)
       if (res.meta.status !== 200) return this.$message.error('查询用户信息失败')
@@ -328,9 +338,27 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取角色列表失败!')
       }
-      console.log(res)
-      this.roleList = res.data
+
+      this.rolesList = res.data
       this.setRoleDialogVisible = true
+    },
+    // 点击按钮，分配角色
+    async savaRoleInfo() {
+      console.log(1)
+      if (!this.selectedRoleId) {
+        // 没有选中角色
+        return this.$message.error('请选择要分配的角色')
+      }
+      const { data: res } = await this.$http.put(`users/${this.userInfo.id}/role`, {
+        rid: this.selectedRoleId
+      })
+      if (res.meta.status !== 200) {
+        return this.$message.error('更新角色失败！')
+      }
+      this.$message.success('更新角色成功！')
+      //更新角色列表
+      this.getUserList()
+      this.setRoleDialogVisible = false
     }
   }
 }
