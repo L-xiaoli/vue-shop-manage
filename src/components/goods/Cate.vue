@@ -7,12 +7,19 @@
       <el-breadcrumb-item>商品管理</el-breadcrumb-item>
       <el-breadcrumb-item>商品分类</el-breadcrumb-item>
     </el-breadcrumb>
+    <!-- 卡片视图区域 -->
     <el-card>
+      <!-- 添加分类按钮区域 -->
       <el-row>
         <el-col>
           <el-button type="primary">添加分类</el-button>
         </el-col>
       </el-row>
+      <!-- 分类表格  -->
+      <!-- 表格区域 -->
+      <tree-table :data="cateList" :columns="columns" :selection-type="false" show-index index-text="#" border :show-row-hover="false"> </tree-table>
+
+      <!-- 分页 -->
     </el-card>
   </div>
 </template>
@@ -29,17 +36,41 @@ export default {
         pagesize: 5
       },
       //商品分类列表
-      catelist: [],
+      cateList: [],
       //总数据条数
-      total: 0
+      total: 0,
+      // 为 table 指定列的定义
+      columns: [
+        {
+          label: '分类名称',
+          prop: 'cat_name'
+        },
+        {
+          label: '是否有效',
+          // 将当前列定义为模板列
+          type: 'template',
+          // 当前列使用的模板名称
+          template: 'isok'
+        },
+        {
+          label: '排序',
+          type: 'template',
+          template: 'order'
+        },
+        {
+          label: '操作',
+          type: 'template',
+          template: 'opt'
+        }
+      ]
     }
   },
   created() {
-    this.getCazteList()
+    this.getCateList()
   },
 
   methods: {
-    async getCazteList() {
+    async getCateList() {
       const { data: res } = await this.$http.get('categories', {
         params: this.queryInfo
       })
@@ -47,8 +78,8 @@ export default {
         return this.$message.error('获取商品分类失败！')
       }
       this.$message.success('获取商品分类成功！')
-      //把获取的数据列表 赋值给catelist
-      this.catelist = res.data.result
+      //把获取的数据列表 赋值给cateList
+      this.cateList = res.data.result
       //总条数
       this.total = res.data.total
     }
