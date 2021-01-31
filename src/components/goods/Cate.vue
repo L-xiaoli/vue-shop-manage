@@ -12,7 +12,7 @@
       <!-- 添加分类按钮区域 -->
       <el-row>
         <el-col>
-          <el-button type="primary">添加分类</el-button>
+          <el-button type="primary" @click="showAddCateDialog">添加分类</el-button>
         </el-col>
       </el-row>
       <!-- 分类表格  -->
@@ -38,6 +38,21 @@
       <!-- 分页 -->
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[5, 10, 15, 20]" :page-size="queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total"> </el-pagination>
     </el-card>
+
+    <!-- 添加分类的对话框 -->
+    <el-dialog title="添加分类" :visible.sync="addDialogVisible" width="50%">
+      <!-- 添加分类的表单 -->
+      <el-form :model="addCateForm" :rules="addCateRules" ref="addCateRef" label-width="100px">
+        <el-form-item label="分类名称：" prop="cat_name">
+          <el-input v-model="addCateForm.cat_name"></el-input>
+        </el-form-item>
+        <el-form-item label="父级分类："> </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button @click="addDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -79,7 +94,21 @@ export default {
           type: 'template',
           template: 'opt'
         }
-      ]
+      ],
+      //控制添加分类对话框的显示与隐藏
+      addDialogVisible: false,
+      addCateForm: {
+        cat_name: '', //分类名
+        cat_pid: 0, //父级分类id
+        cat_level: '' //(默认一级)0：一级分类；1：二级分类；`:三级分类
+      },
+      //添加分类表单规则
+      addCateRules: {
+        cat_name: [
+          { required: true, message: '请输入分类名称', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
   created() {
@@ -94,7 +123,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取商品分类失败！')
       }
-      this.$message.success('获取商品分类成功！')
+      //   this.$message.success('获取商品分类成功！')
       //把获取的数据列表 赋值给cateList
       this.cateList = res.data.result
       //总条数
@@ -109,9 +138,18 @@ export default {
     handleCurrentChange(current) {
       this.queryInfo.pagenum = current
       this.getCateList()
+    },
+    showAddCateDialog() {
+      //弹出对胡款
+      this.addDialogVisible = true
     }
+    //添加分类的表单数据对象
   }
 }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.el-row {
+  margin-bottom: 15px;
+}
+</style>
