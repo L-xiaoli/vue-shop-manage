@@ -17,7 +17,7 @@
       </el-row>
       <!-- 分类表格  -->
       <!-- 表格区域 -->
-      <tree-table :data="cateList" :columns="columns" :selection-type="false" show-index index-text="#" border :show-row-hover="false">
+      <tree-table :data="cateList" :columns="columns" :selection-type="false" :expand-type="false" show-index index-text="#" border :show-row-hover="false">
         <!-- 是否有效 -->
         <template slot="isok" slot-scope="scope">
           <i class="el-icon-success" v-if="scope.row.cat_deleted === false" style="color: lightgreen;"></i>
@@ -28,6 +28,11 @@
           <el-tag size="mini" v-if="scope.row.cat_level === 0">一级</el-tag>
           <el-tag type="success" size="mini" v-else-if="scope.row.cat_level === 1">二级</el-tag>
           <el-tag type="warning" size="mini" v-else>三级</el-tag>
+        </template>
+        <!-- 操作 -->
+        <template slot="opt">
+          <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
         </template>
       </tree-table>
       <!-- 分页 -->
@@ -67,6 +72,11 @@ export default {
           label: '排序',
           type: 'template',
           template: 'order'
+        },
+        {
+          label: '操作',
+          type: 'template',
+          template: 'opt'
         }
       ]
     }
