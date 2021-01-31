@@ -57,7 +57,7 @@ if there's nested data, rowKey is required.
       </el-table>
     </el-card>
     <!-- 分配权限对话框 -->
-    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="50%">
+    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="50%" @close="setRightDialogClosed">
       <!-- 树形控件 -->
       <el-tree :data="rightslist" :props="treeProps" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys"></el-tree>
       <span slot="footer" class="dialog-footer">
@@ -134,7 +134,6 @@ export default {
       //递归获取三级节点的id
       this.getLeafKeys(role, this.defKeys)
       this.setRightDialogVisible = true
-      // console.log(this.rightslist)
     },
     //通过递归的形式获取所有三级权限id，并保存到defKeys中
     getLeafKeys(node, arr) {
@@ -144,6 +143,9 @@ export default {
       }
       //递归调用，循环
       node.children.forEach((item) => this.getLeafKeys(item, arr))
+    },
+    setRightDialogClosed() {
+      this.defKeys = []
     }
   }
 }
