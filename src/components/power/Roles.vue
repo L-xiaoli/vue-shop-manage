@@ -142,7 +142,7 @@ export default {
       if (!node.children) {
         return arr.push(node.id)
       }
-      //递归调用
+      //递归调用，循环
       node.children.forEach((item) => this.getLeafKeys(item, arr))
     }
   }

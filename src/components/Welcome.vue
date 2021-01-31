@@ -10,14 +10,14 @@ export default {
     return {}
   },
 
-  methods: {},
-  watch: {
-    // 侦听器的方式
-    activePath: function() {
-      this.activePath = window.sessionStorage.getItem('activePath')
-      console.log(this.activePath)
-    }
-  }
+  methods: {}
+  // watch: {
+  //   // 侦听器的方式
+  //   activePath: function() {
+  //     this.activePath = window.sessionStorage.getItem('activePath')
+  //     // console.log(this.activePath)
+  //   }
+  // }
 }
 </script>
 
