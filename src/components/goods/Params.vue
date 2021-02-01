@@ -15,9 +15,14 @@
         <el-col>
           <span>选择商品的分类:</span>
           <!-- 选择商品分类的级联选择框 -->
-          <el-cascader v-model="selectedCateKeys" :props="cateProps" :options="cateList" @change="handleChange" expand-trigger="hover"></el-cascader>
+          <el-cascader v-model="selectedCateKeys" :props="cateProps" :options="cateList" @change="handleChange" props.expandTrigger="hover"></el-cascader>
         </el-col>
       </el-row>
+      <!-- Tab页签区域 -->
+      <el-tabs v-model="activeName" @tab-click="handleTabClick">
+        <el-tab-pane label="动态参数" name="first">动态参数</el-tab-pane>
+        <el-tab-pane label="静态属性" name="second">静态属性</el-tab-pane>
+      </el-tabs>
     </el-card>
   </div>
 </template>
@@ -34,14 +39,9 @@ export default {
         value: 'cat_id',
         label: 'cat_name',
         children: 'children'
-      }
-      /*
-        options: {
-          value: 'cat_id',
-          label: 'cat_name',
-          children: 'children'
-              }
-      */
+      },
+      //Tab页签打开的名称（默认打开first）
+      activeName: 'first'
     }
   },
   created() {
@@ -65,6 +65,9 @@ export default {
       }
       this.$message.info('三级的选项')
       console.log(this.selectedCateKeys)
+    },
+    handleTabClick() {
+      console.log(this.activeName)
     }
   }
 }
