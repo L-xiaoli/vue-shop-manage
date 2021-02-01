@@ -30,9 +30,9 @@
           <el-tag type="warning" size="mini" v-else>三级</el-tag>
         </template>
         <!-- 操作 -->
-        <template slot="opt">
+        <template slot="opt" slot-scope="scope">
           <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
-          <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeCate(scope.row.cat_id)">删除</el-button>
         </template>
       </tree-table>
       <!-- 分页 -->
@@ -203,6 +203,29 @@ export default {
       this.selectedKeys = []
       this.addCateForm.cat_pid = 0
       this.addCateForm.cat_level = 0
+    },
+    //根据id删除分类
+    async removeCate(id) {
+      const confirmResult = await this.$confirm('请问是否要永久删除该分类吗', '删除提示', {
+        confirmButtonText: '确认删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch((err) => err)
+      //   console.log(id)
+      if (confirmResult !== 'confirm') {
+        return this.$message.error('取消删除！')
+      }
+      const { data: res } = await this.$http.delete(`categories/${id}`)
+      console.log(res)
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除失败！')
+      }
+      this.$message.success('删除成功！')
+      //TODO:  解决页码的BUG.
+      if (document.querySelectorAll('.el-card tbody tr').length === 1) {
+        this.queryInfo.pagenum = this.queryInfo.pagenum > 1 ? this.queryInfo.pagenum - 1 : 1
+      }
+      this.getCateList()
     }
   }
 }

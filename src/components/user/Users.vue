@@ -311,7 +311,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).catch((err) => err)
-      console.log(confirmResult) //删除：confirm   取消：canel
+      // console.log(confirmResult) //删除：confirm   取消：canel
       if (confirmResult !== 'confirm') {
         //(confirm)取消删除
         return this.$message.error('取消删除操作')
