@@ -23,10 +23,23 @@ export default {
   name: 'params',
 
   data() {
-    return {}
+    return {
+      cateList: [] //商品分类列表
+    }
   },
-
-  methods: {}
+  created() {
+    this.getCateList()
+  },
+  methods: {
+    //获取商品分类列表
+    async getCateList() {
+      const { data: res } = await this.$http.get('categories')
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取商品分类失败！')
+      }
+      this.cateList = res.dataconsole.log(this.cateList)
+    }
+  }
 }
 </script>
 
