@@ -12,7 +12,11 @@
       <!-- :closable="false" ：不可关闭 ；  show-icon ：显示图标-->
       <el-alert title="注意：只允许为第三级分类设置相关参数" type="warning" :closable="false" show-icon></el-alert>
       <el-row class="opt_params">
-        <el-col>选择商品的分类:</el-col>
+        <el-col>
+          <span>选择商品的分类:</span>
+          <!-- 选择商品分类的级联选择框 -->
+          <el-cascader v-model="selectedCateKeys" :props="cateProps" :options="cateList" @change="handleChange" expand-trigger="hover"></el-cascader>
+        </el-col>
       </el-row>
     </el-card>
   </div>
@@ -24,7 +28,20 @@ export default {
 
   data() {
     return {
-      cateList: [] //商品分类列表
+      cateList: [], //商品分类列表，
+      selectedCateKeys: [],
+      cateProps: {
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children'
+      }
+      /*
+        options: {
+          value: 'cat_id',
+          label: 'cat_name',
+          children: 'children'
+              }
+      */
     }
   },
   created() {
@@ -37,7 +54,17 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取商品分类失败！')
       }
-      this.cateList = res.dataconsole.log(this.cateList)
+      this.cateList = res.data
+    },
+    //级联选择框中项变化，会触发
+    handleChange() {
+      if (this.selectedCateKeys.length !== 3) {
+        //   选中的不是三级
+        this.selectedCateKeys = []
+        return
+      }
+      this.$message.info('三级的选项')
+      console.log(this.selectedCateKeys)
     }
   }
 }
@@ -46,5 +73,9 @@ export default {
 <style lang="less" scoped>
 .opt_params {
   margin: 15px 0;
+}
+.el-cascader {
+  margin-left: 20px;
+  width: 250px;
 }
 </style>
