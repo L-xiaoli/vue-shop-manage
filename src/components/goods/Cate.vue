@@ -40,17 +40,20 @@
     </el-card>
 
     <!-- 添加分类的对话框 -->
-    <el-dialog title="添加分类" :visible.sync="addDialogVisible" width="50%">
+    <el-dialog title="添加分类" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
       <!-- 添加分类的表单 -->
       <el-form :model="addCateForm" :rules="addCateRules" ref="addCateRef" label-width="100px">
         <el-form-item label="分类名称：" prop="cat_name">
           <el-input v-model="addCateForm.cat_name"></el-input>
         </el-form-item>
-        <el-form-item label="父级分类："> </el-form-item>
+        <el-form-item label="父级分类：">
+          <!-- options；指定数据源;props:指定配置对象-->
+          <el-cascader v-model="selectedKeys" :options="parentCateList" :props="cascaderProps" @change="parentCateChange" clearable></el-cascader>
+        </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="addCate">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -100,15 +103,26 @@ export default {
       addCateForm: {
         cat_name: '', //分类名
         cat_pid: 0, //父级分类id
-        cat_level: '' //(默认一级)0：一级分类；1：二级分类；`:三级分类
+        cat_level: 0 //(默认一级)0：一级分类；1：二级分类；`:三级分类
       },
       //添加分类表单规则
       addCateRules: {
         cat_name: [
-          { required: true, message: '请输入分类名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+          { required: true, message: '请输入分类名称', trigger: 'blur' }
+          //   ,
+          //   { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ]
-      }
+      },
+      parentCateList: [], //父级分类列表
+      cascaderProps: {
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children',
+        expandTrigger: 'hover', //触发形式
+        checkStrictly: true //允许选择父级
+      },
+      //选中的父级的id的数目
+      selectedKeys: []
     }
   },
   created() {
@@ -140,10 +154,44 @@ export default {
       this.getCateList()
     },
     showAddCateDialog() {
-      //弹出对胡款
+      //先获取父级分类数据列表
+      this.getParentCateList()
+      //弹出对话框
       this.addDialogVisible = true
+    },
+    //获取父级分类的数据列表
+    async getParentCateList() {
+      const { data: res } = await this.$http.get('categories', {
+        params: { type: 2 }
+      })
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取父级分类数据失败！')
+      }
+      // 存一下
+      this.parentCateList = res.data
+    },
+    //选择项发生变化触发此函数
+    parentCateChange() {
+      if (this.selectedKeys.length > 0) {
+        //父级id为最后一项
+        this.addCateForm.cat_pid = this.selectedKeys[this.selectedKeys.length - 1]
+        //当前等级
+        this.addCateForm.cat_level = this.selectedKeys.length
+        return
+      } else {
+        this.addCateForm.cat_pid = 0
+        this.addCateForm.cat_level = 0
+      }
+    },
+    //添加分类
+    addCate() {
+      console.log(this.addCateForm)
+    },
+    //关闭对话框
+    addDialogClosed() {
+      this.$refs.addCateRef.resetFields()
+      ;(this.selectedKeys = []), (this.addCateForm.cat_pid = 0), (this.addCateForm.cat_level = 0)
     }
-    //添加分类的表单数据对象
   }
 }
 </script>
@@ -151,5 +199,8 @@ export default {
 <style lang="less" scoped>
 .el-row {
   margin-bottom: 15px;
+}
+.el-cascader {
+  width: 100%;
 }
 </style>
