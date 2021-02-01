@@ -20,10 +20,10 @@
       </el-row>
       <!-- Tab页签区域 -->
       <el-tabs v-model="activeName" @tab-click="handleTabClick">
-        <el-tab-pane label="动态参数" name="first">
+        <el-tab-pane label="动态参数" name="many">
           <el-button type="primary" size="mini" :disabled="isBtnDisable">添加参数</el-button>
         </el-tab-pane>
-        <el-tab-pane label="静态属性" name="second" :disabled="isBtnDisable">
+        <el-tab-pane label="静态属性" name="only" :disabled="isBtnDisable">
           <el-button type="primary" size="mini">添加属性</el-button>
         </el-tab-pane>
       </el-tabs>
@@ -44,8 +44,8 @@ export default {
         label: 'cat_name',
         children: 'children'
       },
-      //Tab页签打开的名称（默认打开first）
-      activeName: 'first'
+      //Tab页签打开的名称（默认打开many）
+      activeName: 'many'
     }
   },
   created() {
@@ -61,15 +61,20 @@ export default {
       this.cateList = res.data
     },
     //级联选择框中项变化，会触发
-    handleChange() {
+    async handleChange() {
       if (this.selectedCateKeys.length !== 3) {
         //   选中的不是三级
         this.selectedCateKeys = []
         return
       }
-      this.$message.info('三级的选项')
-      console.log(this.selectedCateKeys)
+      // 根据所选分类的 ID，和当前所处的面板，获取对应的参数
+      const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, { params: { sel: this.activeName } })
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取分类参数失败！')
+      }
+      console.log(res.data)
     },
+    // Tab 页签点击时触发
     handleTabClick() {
       console.log(this.activeName)
     }
@@ -81,6 +86,14 @@ export default {
         return true
       }
       return false
+    },
+    // 当前选中的 3 级分类的 ID
+    cateId() {
+      if (this.selectedCateKeys.length === 3) {
+        console.log(this.selectedCateKeys[2])
+        return this.selectedCateKeys[2]
+      }
+      return null
     }
   }
 }
