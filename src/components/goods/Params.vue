@@ -1,31 +1,36 @@
 <template>
   <div>
-    <!-- 面包屑导航 -->
-    <el-breadcrumb separator="/">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+    <!-- 面包屑导航区域 -->
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>商品管理</el-breadcrumb-item>
       <el-breadcrumb-item>参数列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图区域 -->
     <el-card>
-      <!-- 头部警告区域 -->
-      <!-- :closable="false" ：不可关闭 ；  show-icon ：显示图标-->
-      <el-alert title="注意：只允许为第三级分类设置相关参数" type="warning" :closable="false" show-icon></el-alert>
-      <el-row class="opt_params">
+      <!-- 警告区域 -->
+      <el-alert :closable="false" title="注意：只允许为第三级分类设置相关参数！" type="warning" show-icon></el-alert>
+      <!-- 选择商品分类区域 -->
+      <el-row class="cat_opt">
         <el-col>
-          <span>选择商品的分类:</span>
+          <span>选择商品分类：</span>
           <!-- 选择商品分类的级联选择框 -->
-          <el-cascader v-model="selectedCateKeys" :props="cateProps" :options="cateList" @change="handleChange" props.expandTrigger="hover"></el-cascader>
+          <el-cascader :options="cateList" :props="cateProps" v-model="selectedCateKeys" @change="handleChange"></el-cascader>
         </el-col>
       </el-row>
-      <!-- Tab页签区域 -->
+      <!-- tab 标签 -->
       <el-tabs v-model="activeName" @tab-click="handleTabClick">
+        <!-- 添加动态参数面板 -->
         <el-tab-pane label="动态参数" name="many">
-          <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true" class="opt_params">添加参数</el-button>
+          <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true">添加参数</el-button>
           <!-- 动态参数表格 -->
           <el-table :data="manyTableData" border stripe>
             <!-- 展开行的操作 -->
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <el-tag v-for="(item, i) in scope.row.attr_vals" :key="i" closable>{{ item }}</el-tag>
+              </template>
+            </el-table-column>
             <!-- 索引列 -->
             <el-table-column type="index"></el-table-column>
             <el-table-column label="参数名称" prop="attr_name"></el-table-column>
@@ -37,6 +42,7 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
+        <!-- 添加静态属性面板 -->
         <el-tab-pane label="静态属性" name="only">
           <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true">添加属性</el-button>
           <!-- 静态属性表格 -->
@@ -58,7 +64,6 @@
     </el-card>
     <!-- 添加动态参数/静态属性对话框 -->
     <el-dialog :title="'添加' + titleText" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
-      <!-- 添加参数的对话框 -->
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="100px">
         <el-form-item :label="titleText" prop="attr_name">
           <el-input v-model="addForm.attr_name"></el-input>
@@ -95,8 +100,11 @@ export default {
       cateProps: {
         value: 'cat_id',
         label: 'cat_name',
-        children: 'children'
+        children: 'children',
+        expandTrigger: 'hover', //触发形式
+        checkStrictly: true //允许选择父级
       },
+
       //Tab页签打开的名称（默认打开many）
       activeName: 'many', // 被激活的页签的名称
       manyTableData: [], // 动态参数的数据
@@ -131,19 +139,6 @@ export default {
       }
       this.cateList = res.data
     },
-    //级联选择框中项变化，会触发
-    async handleChange() {
-      if (this.selectedCateKeys.length !== 3) {
-        //   选中的不是三级
-        this.selectedCateKeys = []
-        return
-      }
-      // 根据所选分类的 ID，和当前所处的面板，获取对应的参数
-      const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, { params: { sel: this.activeName } })
-      if (res.meta.status !== 200) {
-        return this.$message.error('获取分类参数失败！')
-      }
-    },
     // 级联选择框选中项变化会触发
     handleChange() {
       this.getParamsData()
@@ -165,6 +160,12 @@ export default {
           sel: this.activeName
         }
       })
+      // 对参数下的可选项数据进行加工
+      res.data.forEach((item) => {
+        // ''.split(' ') => ['']
+        item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : []
+      })
+
       if (res.meta.status !== 200) {
         return this.$message.error('获取参数列表失败')
       }
