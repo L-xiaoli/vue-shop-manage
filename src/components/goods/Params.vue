@@ -21,7 +21,7 @@
       <!-- Tab页签区域 -->
       <el-tabs v-model="activeName" @tab-click="handleTabClick">
         <el-tab-pane label="动态参数" name="many">
-          <el-button type="primary" size="mini" :disabled="isBtnDisabled" class="opt_params">添加参数</el-button>
+          <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true" class="opt_params">添加参数</el-button>
           <!-- 静态属性表格 -->
           <el-table :data="onlyTableData" border stripe>
             <!-- 展开行的操作 -->
@@ -38,7 +38,7 @@
           </el-table>
         </el-tab-pane>
         <el-tab-pane label="静态属性" name="only">
-          <el-button type="primary" size="mini" :disabled="isBtnDisabled">添加属性</el-button>
+          <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true">添加属性</el-button>
           <!-- 静态属性表格 -->
           <el-table :data="onlyTableData" border stripe>
             <!-- 展开行的操作 -->
@@ -56,6 +56,19 @@
         </el-tab-pane>
       </el-tabs>
     </el-card>
+    <!-- 添加动态参数/静态属性对话框 -->
+    <el-dialog :title="'添加' + titleText" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
+      <!-- 添加参数的对话框 -->
+      <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="100px">
+        <el-form-item :label="titleText" prop="attr_name">
+          <el-input v-model="addForm.attr_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -75,7 +88,15 @@ export default {
       //Tab页签打开的名称（默认打开many）
       activeName: 'many', // 被激活的页签的名称
       manyTableData: [], // 动态参数的数据
-      onlyTableData: [] // 静态属性的数据
+      onlyTableData: [], // 静态属性的数据
+      addDialogVisible: false, //添加动态参数/静态属性的表单数据对象
+      // 添加动态参数/静态属性的表单数据对象
+      addForm: {
+        attr_name: ''
+      },
+      addFormRules: {
+        attr_name: [{ required: true, message: '请输入参数名称', trigger: 'blur' }]
+      }
     }
   },
   created() {
@@ -132,6 +153,10 @@ export default {
       } else {
         this.onlyTableData = res.data
       }
+    },
+    // 监听添加对话框的关闭事件
+    addDialogClosed() {
+      this.$refs.addFormRef.resetFields()
     }
   },
   computed: {
