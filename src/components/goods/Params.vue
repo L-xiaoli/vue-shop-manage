@@ -268,9 +268,26 @@ export default {
       })
     },
     // 文本失去焦点或按回车会触发
-    handleInputConfirm(row) {
+    async handleInputConfirm(row) {
+      if (row.inputValue.trim().length === 0) {
+        row.inputVisible = false
+        row.inputValue = ''
+        return
+      }
+      //赋值给attr_vals
+      row.attr_vals.push(row.inputValue.trim())
       row.inputVisible = false
       row.inputValue = ''
+      //发起请求，保存数据
+      const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {
+        attr_name: row.attr_name,
+        attr_sel: row.attr_sel,
+        attr_vals: row.attr_vals.join(' ')
+      })
+      if (res.meta.status !== 200) {
+        return this.$message.error('修改参数可选项失败！')
+      }
+      this.$message.success('修改参数可选项成功！')
     }
   },
   computed: {
