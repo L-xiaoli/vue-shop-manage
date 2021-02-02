@@ -32,11 +32,11 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="130px">
-          <template>
+          <template slot-scope="scope">
             <!-- 修改 -->
             <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
             <!-- 删除 -->
-            <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeGoodsById(scope.row.goods_id)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -88,6 +88,30 @@ export default {
     handleCurrentChange(newPage) {
       //当页码发生改变时，更改pagesize，重新请求
       this.queryInfo.pagenum = newPage
+      this.getGoodsList()
+    },
+    async removeGoodsById(id) {
+      const confirmResult = await this.$confirm('请问是否要永久删除该用户', '删除提示', {
+        confirmButtonText: '确认删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch((err) => err)
+      if (confirmResult !== 'confirm') {
+        //(confirm)取消删除
+        return this.$message.error('取消删除操作')
+      }
+      //确认删除：进行删除操作
+      const { data: res } = await this.$http.delete('goods/' + id)
+      console.log(res)
+      if (res.meta.status !== 200) {
+        this.$message.error('删除商品失败！')
+      }
+      this.$message.success('删除用户成功')
+      //TODO:  解决BUG:最后页码的最后一页
+      if (document.querySelectorAll('.el-card tbody tr').length === 1) {
+        this.queryInfo.pagenum = this.queryInfo.pagenum > 1 ? this.queryInfo.pagenum - 1 : 1
+      }
+      //重新请求最新的数据
       this.getGoodsList()
     }
   }
