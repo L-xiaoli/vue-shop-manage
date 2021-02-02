@@ -261,6 +261,11 @@ export default {
     //点击按钮，展示文本输入框
     showInput(row) {
       row.inputVisible = true
+      //让文本自动获取焦点
+      //$nextTick作用：当页面上的元素重新渲染后，才会调用此函数
+      this.$nextTick((_) => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
     },
     // 文本失去焦点或按回车会触发
     handleInputConfirm(row) {
