@@ -22,7 +22,7 @@
       <el-tabs v-model="activeName" @tab-click="handleTabClick">
         <!-- 添加动态参数面板 -->
         <el-tab-pane label="动态参数" name="many">
-          <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true">添加参数</el-button>
+          <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true" class="opt_params">添加参数</el-button>
           <!-- 动态参数表格 -->
           <el-table :data="manyTableData" border stripe>
             <!-- 展开行的操作 -->
@@ -44,7 +44,7 @@
         </el-tab-pane>
         <!-- 添加静态属性面板 -->
         <el-tab-pane label="静态属性" name="only">
-          <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true">添加属性</el-button>
+          <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true" class="opt_params">添加属性</el-button>
           <!-- 静态属性表格 -->
           <el-table :data="onlyTableData" border stripe>
             <!-- 展开行的操作 -->
@@ -104,6 +104,15 @@ export default {
         expandTrigger: 'hover', //触发形式
         checkStrictly: true //允许选择父级
       },
+      /*
+  cascaderProps: {
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children',
+        expandTrigger: 'hover', //触发形式
+        checkStrictly: true //允许选择父级
+      },
+*/
 
       //Tab页签打开的名称（默认打开many）
       activeName: 'many', // 被激活的页签的名称
@@ -163,9 +172,8 @@ export default {
       // 对参数下的可选项数据进行加工
       res.data.forEach((item) => {
         // ''.split(' ') => ['']
-        item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : []
+        item.attr_vals = item.attr_vals ? item.attr_vals.split(',') : []
       })
-
       if (res.meta.status !== 200) {
         return this.$message.error('获取参数列表失败')
       }
@@ -226,7 +234,8 @@ export default {
         if (!valid) return false
         const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${this.editForm.attr_id}`, {
           attr_name: this.editForm.attr_name,
-          attr_sel: this.activeName
+          attr_sel: this.activeName,
+          attr_vals: this.editForm.attr_vals // !把之前的带上，防止把之前的清空
         })
         // console.log(res)
         if (res.meta.status !== 200) {
@@ -292,3 +301,4 @@ export default {
   width: 250px;
 }
 </style>
+2
