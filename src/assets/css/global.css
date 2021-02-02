@@ -22,3 +22,9 @@ body,
 .el-scrollbar__wrap {
   overflow-x: hidden;
 }
+.el-steps {
+  margin: 20px 0;
+}
+.el-step_title {
+  font-size: 13px;
+}
