@@ -19,6 +19,22 @@
           <el-button type="primary">添加商品</el-button>
         </el-col>
       </el-row>
+      <!-- 商品列表(表格)区域 -->
+      <el-table :data="goodsList" border stripe>
+        <el-table-column type="index"></el-table-column>
+        <el-table-column label="商品名称" prop="goods_name"></el-table-column>
+        <el-table-column label="商品价格（元）" prop="goods_price" width="95px"></el-table-column>
+        <el-table-column label="商品重量" prop="goods_weight" width="70px"></el-table-column>
+        <el-table-column label="添加时间" prop="add_time" width="140px"></el-table-column>
+        <el-table-column label="操作" width="130px">
+          <template>
+            <!-- 修改 -->
+            <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
+            <!-- 删除 -->
+            <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
   </div>
 </template>
@@ -28,10 +44,35 @@ export default {
   name: 'Lists',
 
   data() {
-    return {}
+    return {
+      queryInfo: {
+        query: '',
+        pagenum: 1,
+        pagesize: 10
+      },
+      goodsList: [],
+      total: 0
+    }
   },
+  created() {
+    this.getGoodsList()
+  },
+  methods: {
+    //获取商品列表
+    async getGoodsList() {
+      const { data: res } = await this.$http.get('goods', {
+        params: this.queryInfo
+      })
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取商品列表数据失败！')
+      }
 
-  methods: {}
+      this.$message.success('获取商品列表数据成功！')
+      this.goodsList = res.data.goods
+      this.total = res.data.total
+      this.pagenum = res.data.pagenum
+    }
+  }
 }
 </script>
 
