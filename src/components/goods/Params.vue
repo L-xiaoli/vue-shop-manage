@@ -51,7 +51,14 @@
           <!-- 静态属性表格 -->
           <el-table :data="onlyTableData" border stripe>
             <!-- 展开行的操作 -->
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <el-tag v-for="(item, i) in scope.row.attr_vals" :key="i" closable @close="handleClose(i, scope.row)">{{ item }}</el-tag>
+                <!-- 输入文本框 -->
+                <el-input class="input-new-tag" v-if="scope.row.inputVisible" v-model="scope.row.inputValue" ref="saveTagInput" size="small" @keyup.enter.native="handleInputConfirm(scope.row)" @blur="handleInputConfirm(scope.row)"> </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(scope.row)">+ New Tag</el-button>
+              </template>
+            </el-table-column>
             <!-- 索引列 -->
             <el-table-column type="index"></el-table-column>
             <el-table-column label="属性名称" prop="attr_name"></el-table-column>
@@ -154,6 +161,8 @@ export default {
       if (this.selectedCateKeys.length !== 3) {
         // 证明选中的不是 3 级分类
         this.selectedCateKeys = []
+        this.manyTableData = []
+        this.onlyTableData = []
         return false
       }
       // 确定了选中的是 3 级分类。根据所选分类的 ID，和当前所处的面板，获取对应的参数
@@ -335,7 +344,8 @@ export default {
   margin-left: 20px;
   width: 250px;
 }
-.el-tag + .el-tag {
+.el-tag,
+.button-new-tag {
   margin-left: 10px;
 }
 .input-new-tag {
