@@ -29,6 +29,8 @@
             <el-table-column type="expand">
               <template slot-scope="scope">
                 <el-tag v-for="(item, i) in scope.row.attr_vals" :key="i" closable>{{ item }}</el-tag>
+                <el-input class="input-new-tag" v-if="scope.row.inputVisible" v-model="scope.row.inputValue" ref="saveTagInput" size="small" @keyup.enter.native="handleInputConfirm(scope.row)" @blur="handleInputConfirm(scope.row)"> </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(scope.row)">+ New Tag</el-button>
               </template>
             </el-table-column>
             <!-- 索引列 -->
@@ -104,16 +106,6 @@ export default {
         expandTrigger: 'hover', //触发形式
         checkStrictly: true //允许选择父级
       },
-      /*
-  cascaderProps: {
-        value: 'cat_id',
-        label: 'cat_name',
-        children: 'children',
-        expandTrigger: 'hover', //触发形式
-        checkStrictly: true //允许选择父级
-      },
-*/
-
       //Tab页签打开的名称（默认打开many）
       activeName: 'many', // 被激活的页签的名称
       manyTableData: [], // 动态参数的数据
@@ -173,6 +165,9 @@ export default {
       res.data.forEach((item) => {
         // ''.split(' ') => ['']
         item.attr_vals = item.attr_vals ? item.attr_vals.split(',') : []
+        //给每一行添加的单独的inputVisible、inputValue
+        item.inputVisible = false
+        item.inputValue = ''
       })
       if (res.meta.status !== 200) {
         return this.$message.error('获取参数列表失败')
@@ -235,7 +230,7 @@ export default {
         const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${this.editForm.attr_id}`, {
           attr_name: this.editForm.attr_name,
           attr_sel: this.activeName,
-          attr_vals: this.editForm.attr_vals // !把之前的带上，防止把之前的清空
+          attr_vals: this.editForm.attr_vals // !把之前的带上，防止把之前的清空（修改名称时的一个小bug(原名称下的参数会被清空)
         })
         // console.log(res)
         if (res.meta.status !== 200) {
@@ -262,6 +257,15 @@ export default {
       }
       this.$message.success('删除参数成功')
       this.getParamsData()
+    },
+    //点击按钮，展示文本输入框
+    showInput(row) {
+      row.inputVisible = true
+    },
+    // 文本失去焦点或按回车会触发
+    handleInputConfirm(row) {
+      row.inputVisible = false
+      row.inputValue = ''
     }
   },
   computed: {
@@ -300,5 +304,9 @@ export default {
   margin-left: 20px;
   width: 250px;
 }
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
+}
 </style>
-2
