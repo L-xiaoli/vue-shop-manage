@@ -28,7 +28,8 @@
             <!-- 展开行的操作 -->
             <el-table-column type="expand">
               <template slot-scope="scope">
-                <el-tag v-for="(item, i) in scope.row.attr_vals" :key="i" closable>{{ item }}</el-tag>
+                <el-tag v-for="(item, i) in scope.row.attr_vals" :key="i" closable @close="handleClose(i, scope.row)">{{ item }}</el-tag>
+                <!-- 输入文本框 -->
                 <el-input class="input-new-tag" v-if="scope.row.inputVisible" v-model="scope.row.inputValue" ref="saveTagInput" size="small" @keyup.enter.native="handleInputConfirm(scope.row)" @blur="handleInputConfirm(scope.row)"> </el-input>
                 <el-button v-else class="button-new-tag" size="small" @click="showInput(scope.row)">+ New Tag</el-button>
               </template>
@@ -278,16 +279,24 @@ export default {
       row.attr_vals.push(row.inputValue.trim())
       row.inputVisible = false
       row.inputValue = ''
+      this.saveAttrVals(row) //调用http请求函数
+    },
+    // 发起http请求保存attr_vals
+    async saveAttrVals(row) {
       //发起请求，保存数据
       const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {
         attr_name: row.attr_name,
         attr_sel: row.attr_sel,
-        attr_vals: row.attr_vals.join(' ')
+        attr_vals: row.attr_vals.join(',')
       })
       if (res.meta.status !== 200) {
-        return this.$message.error('修改参数可选项失败！')
+        return this.$message.error('添加参数可选项失败！')
       }
-      this.$message.success('修改参数可选项成功！')
+      this.$message.success('添加参数可选项成功！')
+    },
+    handleClose(i, row) {
+      row.attr_vals.splice(i, 1)
+      this.saveAttrVals(row) //调用http请求函数
     }
   },
   computed: {
@@ -325,6 +334,9 @@ export default {
 .el-cascader {
   margin-left: 20px;
   width: 250px;
+}
+.el-tag + .el-tag {
+  margin-left: 10px;
 }
 .input-new-tag {
   width: 90px;
