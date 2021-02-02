@@ -22,16 +22,16 @@
       <el-tabs v-model="activeName" @tab-click="handleTabClick">
         <el-tab-pane label="动态参数" name="many">
           <el-button type="primary" size="mini" :disabled="isBtnDisabled" @click="addDialogVisible = true" class="opt_params">添加参数</el-button>
-          <!-- 静态属性表格 -->
-          <el-table :data="onlyTableData" border stripe>
+          <!-- 动态参数表格 -->
+          <el-table :data="manyTableData" border stripe>
             <!-- 展开行的操作 -->
             <el-table-column type="expand"></el-table-column>
             <!-- 索引列 -->
             <el-table-column type="index"></el-table-column>
-            <el-table-column label="属性名称" prop="attr_name"></el-table-column>
+            <el-table-column label="参数名称" prop="attr_name"></el-table-column>
             <el-table-column label="操作">
-              <template>
-                <el-button size="mini" type="primary" icon="el-icon-edit">编辑</el-button>
+              <template slot-scope="scope">
+                <el-button size="mini" type="primary" icon="el-icon-edit" @click="showEditDialog(scope.row.attr_id)">编辑</el-button>
                 <el-button size="mini" type="danger" icon="el-icon-delete">删除</el-button>
               </template>
             </el-table-column>
@@ -47,8 +47,8 @@
             <el-table-column type="index"></el-table-column>
             <el-table-column label="属性名称" prop="attr_name"></el-table-column>
             <el-table-column label="操作">
-              <template>
-                <el-button size="mini" type="primary" icon="el-icon-edit">编辑</el-button>
+              <template slot-scope="scope">
+                <el-button size="mini" type="primary" icon="el-icon-edit" @click="showEditDialog(scope.row.attr_id)">编辑</el-button>
                 <el-button size="mini" type="danger" icon="el-icon-delete">删除</el-button>
               </template>
             </el-table-column>
@@ -67,6 +67,18 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addParams">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 修改参数对话框 -->
+    <el-dialog :title="'修改' + titleText" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
+      <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="100px">
+        <el-form-item :label="titleText" prop="attr_name">
+          <el-input v-model="editForm.attr_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editParams">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -90,11 +102,19 @@ export default {
       manyTableData: [], // 动态参数的数据
       onlyTableData: [], // 静态属性的数据
       addDialogVisible: false, //添加动态参数/静态属性的表单数据对象
+
       // 添加动态参数/静态属性的表单数据对象
       addForm: {
         attr_name: ''
       },
       addFormRules: {
+        attr_name: [{ required: true, message: '请输入参数名称', trigger: 'blur' }]
+      },
+      editDialogVisible: false, //添加动态参数/静态属性的表单数据对象
+      editForm: {
+        attr_name: ''
+      },
+      editFormRules: {
         attr_name: [{ required: true, message: '请输入参数名称', trigger: 'blur' }]
       }
     }
@@ -148,6 +168,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取参数列表失败')
       }
+      console.log(this.activeName)
       if (this.activeName === 'many') {
         this.manyTableData = res.data
       } else {
@@ -158,8 +179,10 @@ export default {
     addDialogClosed() {
       this.$refs.addFormRef.resetFields()
     },
+
     // 点击按钮，添加参数
     addParams() {
+      // console.log(this.activeName)
       this.$refs.addFormRef.validate(async (valid) => {
         if (!valid) return false
         const { data: res } = await this.$http.post(`categories/${this.cateId}/attributes`, {
@@ -171,6 +194,45 @@ export default {
         }
         this.$message.success('添加参数成功')
         this.addDialogVisible = false
+        this.getParamsData()
+      })
+    },
+    // 监听添加对话框的关闭事件
+    editDialogClosed() {
+      this.$refs.editFormRef.resetFields()
+    },
+    // 点击按钮，展示修改参数的对话框
+    async showEditDialog(attrId) {
+      // 查询当前参数的信息
+      const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes/${attrId}`, {
+        params: {
+          attr_sel: this.activeName
+        }
+      })
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取参数信息失败')
+      }
+      this.editForm = res.data
+      this.editDialogVisible = true
+    },
+    // 重置修改参数的表单
+    editDialogClosed() {
+      this.$refs.editFormRef.resetFields()
+    },
+    // 点击按钮，修改参数
+    editParams() {
+      this.$refs.editFormRef.validate(async (valid) => {
+        if (!valid) return false
+        const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${this.editForm.attr_id}`, {
+          attr_name: this.editForm.attr_name,
+          attr_sel: this.activeName
+        })
+        // console.log(res)
+        if (res.meta.status !== 200) {
+          return this.$message.error('添加参数失败')
+        }
+        this.$message.success('添加参数成功')
+        this.editDialogVisible = false
         this.getParamsData()
       })
     }
@@ -191,6 +253,7 @@ export default {
       }
       return null
     },
+    // 动态计算标题的文本
     titleText() {
       if (this.activeName === 'many') {
         return '动态参数'
