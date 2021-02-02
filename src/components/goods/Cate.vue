@@ -32,7 +32,7 @@
         <!-- 操作 -->
         <template slot="opt" slot-scope="scope">
           <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.cat_id)">编辑</el-button>
-          <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeCate(scope.row.cat_id)">删除</el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeCate(scope.row, scope.row.cat_id)">删除</el-button>
         </template>
       </tree-table>
       <!-- 分页 -->
@@ -58,8 +58,7 @@
     </el-dialog>
     <!-- 编辑分类的对话框 -->
     <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-      <span
-        >6666
+      <span>
         <!-- 编辑分类的表单 -->
         <el-form :model="editCateForm" :rules="editCateRules" ref="editCateRef" label-width="100px">
           <el-form-item label="分类名称：" prop="cat_name">
@@ -237,7 +236,8 @@ export default {
       this.addCateForm.cat_level = 0
     },
     //根据id删除分类
-    async removeCate(id) {
+    async removeCate(cateRow, id) {
+      // console.log(cateRow)
       const confirmResult = await this.$confirm('请问是否要永久删除该分类吗', '删除提示', {
         confirmButtonText: '确认删除',
         cancelButtonText: '取消',
@@ -258,6 +258,8 @@ export default {
         this.queryInfo.pagenum = this.queryInfo.pagenum > 1 ? this.queryInfo.pagenum - 1 : 1
       }
       this.getCateList()
+      // console.log(res.data)
+      // cateRow = res.data
     },
     //显示编辑的对话框并渲染数据
     async showEditDialog(id) {
@@ -297,12 +299,14 @@ export default {
     editCate() {
       this.$refs.editCateRef.validate(async (valid) => {
         if (!valid) return
-        console.log(this.editCateForm.cat_id)
+        // console.log(this.editCateForm.cat_id)
         const { data: res } = await this.$http.put('categories/' + this.editCateForm.cat_id, this.editCateForm)
         if (res.meta.status !== 200) {
           return this.$message.error('修改分类失败！')
         }
+        console.log(this.editCateForm.cat_name)
         this.$message.success('修改分类成功！')
+
         this.getCateList()
         this.editDialogVisible = false
       })
