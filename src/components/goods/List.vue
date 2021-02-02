@@ -39,6 +39,9 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 分页 -->
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[3, 5, 10, 15]" :page-size="queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total"> </el-pagination>
     </el-card>
   </div>
 </template>
@@ -75,6 +78,16 @@ export default {
       this.goodsList = res.data.goods
       this.total = res.data.total
       this.pagenum = res.data.pagenum
+    },
+    handleSizeChange(newSize) {
+      //当页号发生改变时，更改pagesize，重新请求
+      this.queryInfo.pagesize = newSize
+      this.getGoodsList()
+    },
+    handleCurrentChange(newPage) {
+      //当页码发生改变时，更改pagesize，重新请求
+      this.queryInfo.pagenum = newPage
+      this.getGoodsList()
     }
   }
 }
