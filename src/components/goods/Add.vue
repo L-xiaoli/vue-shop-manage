@@ -210,7 +210,7 @@ export default {
     },
     //添加商品
     addGoods() {
-      this.$refs.addFormRulesRef.validate((valid) => {
+      this.$refs.addFormRulesRef.validate(async (valid) => {
         if (!valid) {
           return this.$message.error('请填写必要的商品信息!!')
         }
@@ -232,7 +232,14 @@ export default {
             attr_value: item.attr_vals
           })
         })
-        console.log(deepForm)
+        //发送请求完成商品的添加,
+        //! 商品名称必须是唯一的
+        const { data: res } = await this.$http.post('goods', deepForm)
+        if (res.meta.status !== 201) {
+          return this.$message.error('添加商品失败!')
+        }
+        this.$message.success('添加商品成功!')
+        this.$router.push('/goods') //编程式导航跳转到商品列表
       })
     }
   },
