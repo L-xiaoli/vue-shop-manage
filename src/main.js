@@ -8,6 +8,13 @@ import './assets/css/global.css'
 import './assets/fonts/iconfont.css'
 import axios from 'axios'
 import TreeTable from 'vue-table-with-tree-grid'
+//导入富文本编辑器
+import VueQuillEditor from 'vue-quill-editor'
+//导入富文本编辑器的样式
+import 'quill/dist/quill.core.css' // import styles
+import 'quill/dist/quill.snow.css' // for snow theme
+import 'quill/dist/quill.bubble.css' // for bubble theme
+
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
 // axios.defaults.baseURL = 'http://192.168.88.59:8888/api/private/v1/'
 //请求拦截器
@@ -26,6 +33,8 @@ axios.interceptors.response.use((res) => {
 Vue.prototype.$http = axios
 Vue.config.productionTip = false
 Vue.component('tree-table', TreeTable)
+//将富文本编辑器注册为全局可用
+Vue.use(VueQuillEditor /* { default global options } */)
 //创建过滤器将秒数过滤为年月日，时分秒
 Vue.filter('dateFormat', function(originVal) {
   const dt = new Date(originVal)

@@ -64,7 +64,12 @@
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
           </el-tab-pane>
-          <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
+          <el-tab-pane label="商品内容" name="4">
+            <!-- 富文本 编辑器-->
+            <quill-editor v-model="addForm.goods_introduce" />
+            <!-- 添加商品的按钮 -->
+            <el-button type="primary" class="addBtn">添加商品</el-button>
+          </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
@@ -93,7 +98,8 @@ export default {
         goods_weight: 0,
         goods_number: 0,
         goods_cat: [], //商品所属分类的数组
-        pics: [] //上传的图片临时路径（对象）
+        pics: [], //上传的图片临时路径（对象）
+        goods_introduce: '' //商品详情
       },
 
       // 加商品的表单数据验证规则
@@ -221,5 +227,8 @@ export default {
 }
 .previewImg {
   width: 100%;
+}
+.addBtn {
+  margin-top: 20px;
 }
 </style>

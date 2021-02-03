@@ -38,5 +38,6 @@ Vue.use(Step)
 Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
 Vue.use(Upload)
+// Vue.use(QuillEditor)
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
