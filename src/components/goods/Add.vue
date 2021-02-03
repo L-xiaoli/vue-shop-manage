@@ -59,8 +59,8 @@
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="商品图片" name="3">
-            <!-- action：图片上传的后台接口 ；on-preview ：处理图片预览效果；on-remove：处理移除图片操作； list-type：预览组件的效果-->
-            <el-upload :action="uploadURL" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :headers="headerObj">
+            <!-- action：图片上传的后台接口 ；on-preview ：处理图片预览效果；on-remove：处理移除图片操作； list-type：预览组件的效果 ； on-success：文件上传成功-->
+            <el-upload :action="uploadURL" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :headers="headerObj" :on-success="handleSuccess">
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
           </el-tab-pane>
@@ -88,7 +88,8 @@ export default {
         goods_price: 0,
         goods_weight: 0,
         goods_number: 0,
-        goods_cat: [] //商品所属分类的数组
+        goods_cat: [], //商品所属分类的数组
+        pics: [] //上传的图片临时路径（对象）
       },
 
       // 加商品的表单数据验证规则
@@ -170,7 +171,17 @@ export default {
     // 处理图片预览效果
     handlePreview() {},
     // 处理移除图片操作
-    handleRemove() {}
+    handleRemove() {},
+    //监听文件上传成功的事件
+    handleSuccess(response) {
+      //1# 拼接得到一个图片信息对象
+      const picInfo = {
+        pic: response.data.tmp_path
+      }
+      //2# 将图片信息对象，push到pics数组中
+      this.addForm.pics.push(picInfo)
+      console.log(this.addForm)
+    }
   },
   computed: {
     //获得商品当前三级分类id
