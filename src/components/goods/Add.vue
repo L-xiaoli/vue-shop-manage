@@ -68,6 +68,10 @@
         </el-tabs>
       </el-form>
     </el-card>
+    <!-- 图片预览的对话框 -->
+    <el-dialog title="图片预览" :visible.sync="previewVisible" width="50%">
+      <img :src="previewURL" alt="" class="previewImg" />
+    </el-dialog>
   </div>
 </template>
 
@@ -112,7 +116,9 @@ export default {
       //手动为upload组件绑定请求头
       headerObj: {
         Authorization: window.sessionStorage.getItem('token')
-      }
+      },
+      previewURL: '', //图片预览地址
+      previewVisible: false
     }
   },
   created() {
@@ -169,7 +175,10 @@ export default {
       }
     },
     // 处理图片预览效果
-    handlePreview() {},
+    handlePreview(file) {
+      this.previewURL = file.response.data.url
+      this.previewVisible = true
+    },
     // 处理移除图片操作
     handleRemove(file) {
       // 1# 获取删除的图片临时路径
@@ -209,5 +218,8 @@ export default {
 <style lang="less" scoped>
 .el-checkbox {
   margin: 0 15px 0 0 !important;
+}
+.previewImg {
+  width: 100%;
 }
 </style>
