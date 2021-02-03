@@ -22,7 +22,7 @@
       </el-steps>
       <!-- Tab栏区域 -->
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRulesRef" label-width="100px" label-position="top">
-        <el-tabs :tab-position="'left'" v-model="activeIndex" :before-leave="beforeTabLeave">
+        <el-tabs :tab-position="'left'" v-model="activeIndex" :before-leave="beforeTabLeave" @tab-click="tabClicked">
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
               <el-input v-model="addForm.goods_name"></el-input>
@@ -66,6 +66,8 @@ export default {
       //添加商品的表单数据
       //用来保存分类数据
       cateList: [],
+      manyTableData: [], // 动态参数的数据
+      onlyTableData: [], // 静态属性的数据
       addForm: {
         goods_name: '',
         goods_price: 0,
@@ -114,6 +116,26 @@ export default {
         this.$message.error('请先选择商品分类！')
         return false
       }
+    },
+    //标签页点击事件
+    async tabClicked() {
+      const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, {
+        params: { sel: 'many' }
+      })
+      console.log(res)
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取动态参数失败！')
+      }
+      this.manyTableData = res.data
+    }
+  },
+  computed: {
+    //获得商品当前三级分类id
+    cateId() {
+      if (this.addForm.goods_cat.length === 3) {
+        return this.addForm.goods_cat[2]
+      }
+      return null
     }
   }
 }
