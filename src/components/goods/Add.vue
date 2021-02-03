@@ -83,13 +83,6 @@ export default {
         goods_cat: [{ required: true, message: '请选择商品分类', trigger: 'blur' }]
       },
       //配置级联菜单中数据如何展示
-      // cateProps:
-      //   {
-      //     value: 'cat_id',
-      //     label: 'cat_name',
-      //     children: 'children',
-      //     expandTrigger: 'hover'
-      //   },
       cateProps: {
         value: 'cat_id',
         label: 'cat_name',
@@ -109,10 +102,12 @@ export default {
       }
       this.$message.success('获取商品分类数据成功！')
       this.cateList = res.data
-
-      console.log(this.cateList)
     },
-    handleChange() {}
+    handleChange() {
+      if (this.addForm.goods_cat.length !== 3) {
+        this.addForm.goods_cat = []
+      }
+    }
   }
 }
 </script>
