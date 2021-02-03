@@ -22,7 +22,7 @@
       </el-steps>
       <!-- Tab栏区域 -->
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRulesRef" label-width="100px" label-position="top">
-        <el-tabs :tab-position="'left'" v-model="activeIndex">
+        <el-tabs :tab-position="'left'" v-model="activeIndex" :before-leave="beforeTabLeave">
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
               <el-input v-model="addForm.goods_name"></el-input>
@@ -43,7 +43,7 @@
 
             <el-form-item label="商品分类" prop="goods_cat">
               <!-- 选择商品分类的级联选择框 -->
-              <el-cascader expandTrigger="hover" v-model="addForm.goods_cat" :options="cateList" :props="cateProps" @change="handleChange" clearable></el-cascader>
+              <el-cascader v-model="addForm.goods_cat" :options="cateList" :props="cateProps" @change="handleChange" clearable></el-cascader>
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="商品参数" name="1">商品参数</el-tab-pane>
@@ -106,6 +106,13 @@ export default {
     handleChange() {
       if (this.addForm.goods_cat.length !== 3) {
         this.addForm.goods_cat = []
+      }
+    },
+    //控制页签切换
+    beforeTabLeave(newName, oldName) {
+      if (newName !== '0' && this.addForm.goods_cat.length !== 3) {
+        this.$message.error('请先选择商品分类！')
+        return false
       }
     }
   }
