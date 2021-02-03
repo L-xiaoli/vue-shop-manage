@@ -53,7 +53,11 @@
               </el-checkbox-group>
             </el-form-item>
           </el-tab-pane>
-          <el-tab-pane label="商品属性" name="2">商品属性</el-tab-pane>
+          <el-tab-pane label="商品属性" name="2">
+            <el-form-item :label="item.attr_name" :key="item.attr_id" v-for="item in onlyTableData">
+              <el-input v-model="item.attr_vals"></el-input>
+            </el-form-item>
+          </el-tab-pane>
           <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
         </el-tabs>
@@ -136,9 +140,20 @@ export default {
           return this.$message.error('获取动态参数失败！')
         }
         res.data.forEach((item) => {
-          item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.split(',')
+          item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.split(' ')
         })
         this.manyTableData = res.data
+      }
+      // ！ 索引为2：进入商品属性Tab栏
+      else if (this.activeIndex === '2') {
+        const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, {
+          params: { sel: 'only' }
+        })
+        console.log(res)
+        if (res.meta.status !== 200) {
+          return this.$message.error('获取动态参数失败！')
+        }
+        this.onlyTableData = res.data
       }
     }
   },
