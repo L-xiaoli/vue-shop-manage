@@ -171,7 +171,18 @@ export default {
     // 处理图片预览效果
     handlePreview() {},
     // 处理移除图片操作
-    handleRemove() {},
+    handleRemove(file) {
+      // 1# 获取删除的图片临时路径
+      const filePath = file.response.data.tmp_path
+      // 2# 从pics数组中找到对应的索引
+      const index = this.addForm.pics.findIndex((item) => {
+        return item.pic == filePath
+      })
+      console.log(index)
+      // 3# 调用splice方法 移除
+      this.addForm.pics.splice(index, 1)
+      console.log(this.addForm)
+    },
     //监听文件上传成功的事件
     handleSuccess(response) {
       //1# 拼接得到一个图片信息对象
