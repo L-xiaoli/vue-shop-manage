@@ -37,9 +37,6 @@
             <el-form-item label="商品数量" prop="goods_number">
               <el-input v-model="addForm.goods_number" type="number"></el-input>
             </el-form-item>
-            <el-form-item label="商品分类" prop="goods_name">
-              <el-input v-model="addForm.goods_name"></el-input>
-            </el-form-item>
 
             <el-form-item label="商品分类" prop="goods_cat">
               <!-- 选择商品分类的级联选择框 -->
@@ -81,6 +78,8 @@
 </template>
 
 <script>
+import _ from 'lodash'
+
 export default {
   name: '',
 
@@ -99,7 +98,8 @@ export default {
         goods_number: 0,
         goods_cat: [], //商品所属分类的数组
         pics: [], //上传的图片临时路径（对象）
-        goods_introduce: '' //商品详情
+        goods_introduce: '', //商品详情
+        attrs: [] //添加处理后的数据
       },
 
       // 加商品的表单数据验证规则
@@ -214,6 +214,25 @@ export default {
         if (!valid) {
           return this.$message.error('请填写必要的商品信息!!')
         }
+        //! 使用lodash库中的_.cloneDeep深拷贝表单数据,解决同时同一份数据需要数组与字符串格式的问题
+        const deepForm = _.cloneDeep(this.addForm)
+        deepForm.goods_cat = deepForm.goods_cat.join(',')
+        //处理attrs数组，数组中需要包含商品的动态参数和静态属性
+        //将manyTableData（动态参数）处理添加到attrs
+        this.manyTableData.forEach((item) => {
+          deepForm.attrs.push({
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals.join(' ')
+          })
+        })
+        //将onlyTableData（静态属性）处理添加到attrs
+        this.onlyTableData.forEach((item) => {
+          deepForm.attrs.push({
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals
+          })
+        })
+        console.log(deepForm)
       })
     }
   },
