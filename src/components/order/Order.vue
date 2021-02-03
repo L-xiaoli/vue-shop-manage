@@ -40,13 +40,15 @@
           <el-table-column label="操作">
             <template slot-scope="scope">
               <!-- 修改 -->
-              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showOrderDialog(scope.row.id)" @close="editDialogClosed"></el-button>
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showOrderDialog(scope.row.id)"></el-button>
               <!-- 定位 -->
               <el-button type="success" icon="el-icon-location" size="mini"></el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-row>
+      <!-- 分页功能 -->
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[5, 10, 15]" :page-size="queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total"> </el-pagination>
     </el-card>
   </div>
 </template>
@@ -60,11 +62,12 @@ export default {
       //获取查询订单信息的参数
       queryInfo: {
         query: '',
-        pagenum: 1,
+        pagenum: 1, //当前页
         pagesize: 10
       },
       total: 0, //数据总条数,
-      orderList: [] //订单数据列表
+      orderList: [], //订单数据列表
+      currentPage: 1
     }
   },
   created() {
@@ -82,9 +85,16 @@ export default {
       this.total = res.data.total
       this.orderList = res.data.goods
     },
-    //展示数据
-    showOrderDialog() {},
-    editDialogClosed() {}
+    //页码大小发生变化触发
+    handleSizeChange(newSize) {
+      this.queryInfo.pagesize = newSize
+      this.getOrderList()
+    },
+    // 当前页生变化触发
+    handleCurrentChange(newCurret) {
+      this.pagenum = newCurret
+      this.getOrderList()
+    }
   }
 }
 </script>
