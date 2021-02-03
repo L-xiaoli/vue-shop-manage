@@ -40,7 +40,7 @@
           <el-table-column label="操作">
             <template slot-scope="scope">
               <!-- 修改 -->
-              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showOrderDialog(scope.row.id)"></el-button>
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="addAdress"></el-button>
               <!-- 定位 -->
               <el-button type="success" icon="el-icon-location" size="mini"></el-button>
             </template>
@@ -49,11 +49,29 @@
       </el-row>
       <!-- 分页功能 -->
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[5, 10, 15]" :page-size="queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total"> </el-pagination>
+      <!-- 修改地址的对话框 -->
+      <el-dialog title="修改地址" :visible.sync="addressVisible" width="50%" @close="addressDialogClosed">
+        <el-form :model="addressForm" :rules="addressFormRules" ref="addressFormRef" label-width="100px">
+          <el-form-item label="省市区/县" prop="address1">
+            <el-cascader v-model="addressForm.address1" :options="cityDate"></el-cascader>
+          </el-form-item>
+          <el-form-item label="详细地址" prop="address2">
+            <el-input v-model="addressForm.address2"></el-input>
+          </el-form-item>
+        </el-form>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="addressVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addressVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
 
 <script>
+import cityDate from './citydata.js'
+
 export default {
   name: 'order',
 
@@ -67,7 +85,18 @@ export default {
       },
       total: 0, //数据总条数,
       orderList: [], //订单数据列表
-      currentPage: 1
+      currentPage: 1,
+      addressVisible: false,
+      addressForm: {
+        address1: [],
+        address2: ''
+      },
+      addressFormRules: {
+        address1: [{ required: true, message: '请选择省市区/县!', trigger: 'blur' }],
+        address2: [{ required: true, message: '请填写详细地址!', trigger: 'blur' }]
+      },
+      addressFormRef: {},
+      cityDate
     }
   },
   created() {
@@ -94,9 +123,21 @@ export default {
     handleCurrentChange(newCurret) {
       this.pagenum = newCurret
       this.getOrderList()
+    },
+    //添加地址的对话框
+    addAdress() {
+      this.addressVisible = true
+    },
+    handleChange() {},
+    addressDialogClosed() {
+      this.$refs.addressFormRef.resetFields()
     }
   }
 }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.el-cascader {
+  width: 100%;
+}
+</style>
