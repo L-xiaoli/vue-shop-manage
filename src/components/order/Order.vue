@@ -38,11 +38,11 @@
             </template>
           </el-table-column>
           <el-table-column label="操作">
-            <template slot-scope="scope">
-              <!-- 修改 -->
-              <el-button type="primary" icon="el-icon-edit" size="mini" @click="addAdress"></el-button>
+            <template>
+              <!-- 修改地址 -->
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showAddress"></el-button>
               <!-- 定位 -->
-              <el-button type="success" icon="el-icon-location" size="mini"></el-button>
+              <el-button type="success" icon="el-icon-location" size="mini" @click="showProgressDialog"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -63,6 +63,15 @@
         <span slot="footer" class="dialog-footer">
           <el-button @click="addressVisible = false">取 消</el-button>
           <el-button type="primary" @click="addressVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
+      <!--展示物流进度对话框  -->
+      <el-dialog title="物流进度" :visible.sync="progressVisible" width="50%" @close="progressDialogClosed">
+        <!-- <el-form :model="proressForm" :rules="progressFormRules" ref="progressFormRef" label-width="100px"> </el-form> -->
+        <!-- <template slot-scope="scope"> </template> -->
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="progressVisible = false">取 消</el-button>
+          <el-button type="primary" @click="progressVisible = false">确 定</el-button>
         </span>
       </el-dialog>
     </el-card>
@@ -87,6 +96,7 @@ export default {
       orderList: [], //订单数据列表
       currentPage: 1,
       addressVisible: false,
+      progressVisible: false,
       addressForm: {
         address1: [],
         address2: ''
@@ -95,8 +105,12 @@ export default {
         address1: [{ required: true, message: '请选择省市区/县!', trigger: 'blur' }],
         address2: [{ required: true, message: '请填写详细地址!', trigger: 'blur' }]
       },
-      addressFormRef: {},
-      cityDate
+      //   addressFormRef: {},
+      cityDate,
+      progressForm: {},
+      //   progressFormRules: {},
+      //   progressFormRef: {},
+      propgressInfo: []
     }
   },
   created() {
@@ -124,13 +138,31 @@ export default {
       this.pagenum = newCurret
       this.getOrderList()
     },
-    //添加地址的对话框
-    addAdress() {
+    //展示地址修改对话框
+    showAddress() {
       this.addressVisible = true
     },
-    handleChange() {},
+    //关闭对话框清空表格数据
     addressDialogClosed() {
       this.$refs.addressFormRef.resetFields()
+    },
+    //展示物流进度
+    async showProgressDialog() {
+      //发送请求获取物流数据
+      // const { data: res } = await this.$http.get('/kuaidi/1106975712662')
+      // const { data: res } = await this.$http.get('/kuaidi/804909574412544580')
+      const { data: res } = await this.$http.get('/kuaidi/9881669917037')
+      console.log(res)
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取物流进度失败!')
+      }
+      this.progressInfo = res.data
+      //显示对话框
+      this.progressVisible = true
+    },
+    //关闭对话框清空表格数据
+    progressDialogClosed() {
+      this.$refs.progressFormRef.resetFields()
     }
   }
 }
