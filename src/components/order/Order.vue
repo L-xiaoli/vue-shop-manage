@@ -66,13 +66,13 @@
         </span>
       </el-dialog>
       <!--展示物流进度对话框  -->
-      <el-dialog title="物流进度" :visible.sync="progressVisible" width="50%" @close="progressDialogClosed">
-        <!-- <el-form :model="proressForm" :rules="progressFormRules" ref="progressFormRef" label-width="100px"> </el-form> -->
-        <!-- <template slot-scope="scope"> </template> -->
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="progressVisible = false">取 消</el-button>
-          <el-button type="primary" @click="progressVisible = false">确 定</el-button>
-        </span>
+      <el-dialog title="物流进度" :visible.sync="progressVisible" width="50%">
+        <!-- 时间线组件  -->
+        <el-timeline>
+          <el-timeline-item v-for="(activity, index) in progressInfo" :key="index" :timestamp="activity.time">
+            {{ activity.context }}
+          </el-timeline-item>
+        </el-timeline>
       </el-dialog>
     </el-card>
   </div>
@@ -95,8 +95,8 @@ export default {
       total: 0, //数据总条数,
       orderList: [], //订单数据列表
       currentPage: 1,
-      addressVisible: false,
-      progressVisible: false,
+      addressVisible: false, //控制修改地址对话框的显示和隐藏
+      progressVisible: false, //控制物流进度对话框的显示和隐藏
       addressForm: {
         address1: [],
         address2: ''
