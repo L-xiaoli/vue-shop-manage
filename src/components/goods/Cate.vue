@@ -58,8 +58,7 @@
     </el-dialog>
     <!-- 编辑分类的对话框 -->
     <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-      <span
-        >6666
+      <span>
         <!-- 编辑分类的表单 -->
         <el-form :model="editCateForm" :rules="editCateRules" ref="editCateRef" label-width="100px">
           <el-form-item label="分类名称：" prop="cat_name">
@@ -271,6 +270,8 @@ export default {
       this.selectList.push(res.data.cat_pid)
       if (res.data.cat_level === 2) {
         this.getLeafCate(res.data.cat_pid)
+      } else if (res.data.cat_level === 1) {
+        this.selectedKeys = this.selectList[0]
       } else {
         this.selectedKeys = this.selectList
       }
