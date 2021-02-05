@@ -34,7 +34,7 @@
         <el-table-column label="操作" width="130px">
           <template slot-scope="scope">
             <!-- 修改 -->
-            <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="ShowEditDialog(scope.row.goods_id)"></el-button>
             <!-- 删除 -->
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeGoodsById(scope.row.goods_id)"></el-button>
           </template>
@@ -43,6 +43,33 @@
 
       <!-- 分页 -->
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[3, 5, 10, 15]" :page-size="queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total"> </el-pagination>
+
+      <!-- 修改的对话框 -->
+
+      <el-dialog title="修改商品信息" :visible.sync="editDialogVisible" width="70%">
+        <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="auto">
+          <el-form-item label="商品名称" prop="goods_name">
+            <el-input type="textarea" v-model="editForm.goods_name"></el-input>
+          </el-form-item>
+          <el-form-item label="商品价格" prop="goods_price">
+            <el-input v-model="editForm.goods_price"></el-input>
+          </el-form-item>
+          <el-form-item label="商品数量" prop="goods_number">
+            <el-input v-model="editForm.goods_number"></el-input>
+          </el-form-item>
+          <el-form-item label="商品重量" prop="goods_weight">
+            <el-input v-model="editForm.goods_weight"></el-input>
+          </el-form-item>
+          <el-form-item :label="item.attr_name" :key="item.id" v-for="item in editForm.attrs">
+            <el-input v-model="item.attr_value"></el-input>
+          </el-form-item>
+        </el-form>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editDialogVisible = false">取 消</el-button>
+          <el-button @click="editGood" type="primary">确 定</el-button>
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -59,7 +86,22 @@ export default {
         pagesize: 10
       },
       goodsList: [],
-      total: 0
+      total: 0,
+      editDialogVisible: false,
+      editForm: {
+        goods_id: 0,
+        goods_name: '',
+        goods_price: 0,
+        goods_number: 0,
+        goods_weight: 0,
+        attrs: []
+      },
+      editFormRules: {
+        goods_name: [{ required: true, message: '请输入活动名称', trigger: 'blur' }],
+        goods_price: [{ required: true, message: '请选择活动区域', trigger: 'blur' }],
+        goods_number: [{ required: true, message: '请输入活动名称', trigger: 'blur' }],
+        goods_weight: [{ required: true, message: '请输入活动名称', trigger: 'blur' }]
+      }
     }
   },
   created() {
@@ -90,6 +132,22 @@ export default {
       this.queryInfo.pagenum = newPage
       this.getGoodsList()
     },
+    async ShowEditDialog(id) {
+      const { data: res } = await this.$http.get(`goods/${id}`)
+      console.log(res.data)
+      if (res.meta.status !== 200) {
+        return this.$message.error('修改商品失败')
+      }
+      console.log(res)
+      this.$message.success('修改商品成功')
+      this.editForm = res.data
+      this.editDialogVisible = true
+    },
+    async editGood() {
+      const { data: res } = await this.$http.put('goods/' + this.editForm.goods_id, this.editForm)
+      this.editDialogVisible = false
+      this.getGoodsList()
+    },
     async removeGoodsById(id) {
       const confirmResult = await this.$confirm('请问是否要永久删除该用户', '删除提示', {
         confirmButtonText: '确认删除',
@@ -115,11 +173,12 @@ export default {
       this.getGoodsList()
     },
     goAddPage() {
-    
       this.$router.push('/goods/add')
     }
   }
 }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+
+</style>
