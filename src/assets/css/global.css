@@ -31,3 +31,6 @@ body,
 .ql-editor {
   min-height: 300px;
 }
+.el-table {
+  margin-top: 20px;
+}
