@@ -110,7 +110,7 @@ export default {
       progressForm: {},
       //   progressFormRules: {},
       //   progressFormRef: {},
-      propgressInfo: []
+      progressInfo: []
     }
   },
   created() {
