@@ -273,6 +273,8 @@ export default {
       this.selectList.push(res.data.cat_pid)
       if (res.data.cat_level === 2) {
         this.getLeafCate(res.data.cat_pid)
+      } else if (res.data.cat_level === 1) {
+        this.selectedKeys = this.selectList[0]
       } else {
         this.selectedKeys = this.selectList
       }
