@@ -23,6 +23,8 @@
     "@vue/cli-service": "~4.5.0",
     "axios": "^0.21.1",
     "babel-plugin-component": "^1.1.1",
+    "babel-plugin-transform-remove-console": "^6.9.4",
+    "compression": "^1.7.4",
     "less": "^3.13.1",
     "less-loader": "^5.0.0",
     "vue-cli-plugin-element": "^1.0.1",
